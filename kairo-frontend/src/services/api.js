@@ -1,59 +1,34 @@
-const BACKEND_URL = 'http://localhost:5050/api/v1';
+const BASE_URL = 'http://localhost:5050/api';
 
-/**
- * Initiates an open connection to our streaming server-sent events endpoint
- * @param {string} userMessage - The raw prompt text entered by the user
- * @param {Function} onToken - Callback fired every time a new text token arrives
- * @param {Function} onError - Callback to handle pipeline failures
- * @param {Function} onComplete - Callback triggered when the stream outputs [DONE]
- */
-export const streamChatMessage = async (userMessage, onToken, onError, onComplete) => {
-  try {
-    const response = await fetch(`${BACKEND_URL}/chat/stream`, {
+export const apiService = {
+  // Fetch the full inventory of threads for the sidebar
+  async fetchThreads() {
+    const res = await fetch(`${BASE_URL}/threads`);
+    const json = await res.json();
+    return json.data || [];
+  },
+
+  // Initialize a brand new thread environment
+  async createThread(title = '', agentFirmware = 'core_assistant') {
+    const res = await fetch(`${BASE_URL}/threads`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ message: userMessage }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, agentFirmware })
     });
+    const json = await res.json();
+    return json.data;
+  },
 
-    if (!response.ok) {
-      throw new Error(`Server returned error code: ${response.status}`);
-    }
+  // Extract old historical logs if a user switches threads
+  async fetchThreadLogs(threadId) {
+    const res = await fetch(`${BASE_URL}/threads/${threadId}/logs`);
+    const json = await res.json();
+    return json.data || [];
+  },
 
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let isStreaming = true;
-
-    while (isStreaming) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      const chunk = decoder.decode(value, { stream: true });
-      const lines = chunk.split('\n');
-
-      for (const line of lines) {
-        if (!line.startsWith('data: ')) continue;
-        
-        const rawData = line.replace('data: ', '').trim();
-        
-        if (rawData === '[DONE]') {
-          isStreaming = false;
-          onComplete();
-          break;
-        }
-
-        try {
-          const parsed = JSON.parse(rawData);
-          if (parsed.token) {
-            onToken(parsed.token);
-          }
-        } catch (e) {
-          // Ignore parsing anomalies over chunk lines
-        }
-      }
-    }
-  } catch (error) {
-    onError(error.message);
+  // Purge a thread and all related child data logs
+  async deleteThread(threadId) {
+    const res = await fetch(`${BASE_URL}/threads/${threadId}`, { method: 'DELETE' });
+    return await res.json();
   }
 };

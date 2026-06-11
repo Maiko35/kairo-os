@@ -1,12 +1,16 @@
 import app from './app.js';
 import { config } from './config/env.js';
 import { ollamaService } from './services/ollama.service.js';
+import { initializeDatabase } from './services/database.service.js';
 
 async function bootstrap() {
   console.log('Initializing KAIRO Core Kernel...');
 
   try {
-    // 1. Verify health of the local AI model infrastructure first
+    // 1. Mount and verify the local persistence layer (Database Subsystem)
+    initializeDatabase();
+
+    // 2. Verify health of the local AI model infrastructure
     const isOllamaHealthy = await ollamaService.checkHealth();
     
     if (isOllamaHealthy) {
@@ -15,12 +19,12 @@ async function bootstrap() {
       console.log('Warning: Local Ollama runner not detected. Ensure Ollama is running.');
     }
 
-    // 2. Bind network ports ONCE after health checks complete
+    // 3. Bind network ports EXACTLY ONCE after all system initialization checks pass
     const server = app.listen(config.port, () => {
       console.log(`KAIRO Operating System Kernel online at: http://localhost:${config.port}`);
     });
 
-    // 3. Catch generic socket or runtime exceptions cleanly
+    // 4. Catch generic socket or runtime exceptions cleanly
     server.on('error', (error) => {
       if (error.code === 'EADDRINUSE') {
         console.error(`Execution error: Port ${config.port} is already in use by another process.`);
@@ -36,5 +40,5 @@ async function bootstrap() {
   }
 }
 
-// Execute the bootstrap sequence exactly once
+// Execute the unified bootstrap sequence exactly once
 bootstrap();
