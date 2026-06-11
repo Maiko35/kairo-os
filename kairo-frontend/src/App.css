@@ -1,0 +1,135 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: #121214;
+  color: #e1e1e6;
+}
+
+.kairo-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.kairo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #1a1a1e;
+  border-bottom: 1px solid #29292e;
+}
+
+.kairo-header h1 {
+  margin: 0;
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+  color: #4ade80;
+}
+
+.status-badge {
+  font-size: 0.8rem;
+  background-color: #29292e;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  color: #a4a4b2;
+}
+
+.chat-window {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem;
+}
+
+.message-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.empty-state {
+  text-align: center;
+  color: #7c7c8a;
+  margin-top: 4rem;
+}
+
+.message-bubble {
+  padding: 1rem;
+  border-radius: 6px;
+  max-width: 80%;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.message-bubble.user {
+  background-color: #29292e;
+  align-self: flex-end;
+}
+
+.message-bubble.assistant {
+  background-color: #1a1a1e;
+  border-left: 3px solid #4ade80;
+  align-self: flex-start;
+}
+
+.avatar-label {
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #7c7c8a;
+  margin-bottom: 0.5rem;
+}
+
+.message-content {
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.input-tray {
+  padding: 1.5rem 2rem;
+  background-color: #1a1a1e;
+  border-top: 1px solid #29292e;
+}
+
+.input-form {
+  display: flex;
+  gap: 1rem;
+}
+
+.input-form input {
+  flex: 1;
+  background-color: #121214;
+  border: 1px solid #29292e;
+  color: #e1e1e6;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.input-form input:focus {
+  outline: none;
+  border-color: #4ade80;
+}
+
+.input-form button {
+  background-color: #4ade80;
+  color: #0c0c0d;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.input-form button:disabled {
+  background-color: #29292e;
+  color: #7c7c8a;
+  cursor: not-allowed;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}

@@ -1,0 +1,21 @@
+# System Logs & Caching
+.DS_Store
+*.log
+.logs/
+
+# Node Dependencies (Backend & Frontend)
+node_modules/
+dist/
+build/
+.npm/
+
+# Environment Variables & Local Secret Infrastructure
+.env
+.env.local
+.env.*.local
+*.env
+
+# Local Databases (Phase 2 Prep)
+database/*.db
+database/*.db-journal
+
