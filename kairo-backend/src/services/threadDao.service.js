@@ -67,5 +67,20 @@ export const threadDao = {
     `;
     const statement = db.prepare(query);
     return statement.run(threadId);
+  },
+
+  /**
+   * Updates the structural title string of an established thread session.
+   * Invoked out-of-band by the Kernel auto-titling routine.
+   */
+  updateThreadTitle(threadId, newTitle) {
+    const query = `
+      UPDATE threads 
+      SET title = ?, updated_at = CURRENT_TIMESTAMP 
+      WHERE id = ?
+    `;
+    const statement = db.prepare(query);
+    return statement.run(newTitle, threadId);
   }
+  
 };
