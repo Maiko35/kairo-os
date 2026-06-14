@@ -1,6 +1,6 @@
 import app from './app.js';
 import { config } from './config/env.js';
-import { ollamaService } from './services/ollama.service.js';
+import { ollamaBroker } from './kernel/broker/ollamaBroker.js';
 import { initializeDatabase } from './services/database.service.js';
 
 async function bootstrap() {
@@ -11,7 +11,7 @@ async function bootstrap() {
     initializeDatabase();
 
     // 2. Verify health of the local AI model infrastructure
-    const isOllamaHealthy = await ollamaService.checkHealth();
+    const isOllamaHealthy = await ollamaBroker.checkHealth();
     
     if (isOllamaHealthy) {
       console.log('Local Model Broker established clean link to Ollama.');
