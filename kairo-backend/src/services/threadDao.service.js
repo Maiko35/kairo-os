@@ -81,6 +81,21 @@ export const threadDao = {
     `;
     const statement = db.prepare(query);
     return statement.run(newTitle, threadId);
+  },
+
+  /**
+   * Returns a dynamic integer counting all currently registered threads.
+   * Consumed by the Kernel Telemetry and Status Panel subsystems.
+   */
+  getThreadCount() {
+    try {
+      const query = `SELECT COUNT(*) as total FROM threads`;
+      const result = db.prepare(query).get();
+      return result ? result.total : 0;
+    } catch (error) {
+      console.error('[Database Subsystem Error] Failed to aggregate thread count:', error.message);
+      return 0;
+    }
   }
-  
+
 };
