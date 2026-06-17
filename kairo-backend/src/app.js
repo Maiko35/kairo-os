@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import threadRouter from './routes/thread.routes.js';
 import { handleStreamMessage } from './features/chat/chat.controller.js';
+import { getRuntimeStatus } from './features/system/system.controller.js';
 
 const app = express();
 
@@ -23,5 +24,7 @@ app.get('/health', (req, res) => {
 
 // AI Core Orchestration Routes
 app.post('/api/v1/chat/stream', handleStreamMessage);
+
+app.get('/api/v1/system/status', getRuntimeStatus);
 
 export default app;
