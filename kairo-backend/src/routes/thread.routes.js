@@ -10,7 +10,7 @@ const router = express.Router();
  */
 router.post('/', (req, res) => {
   try {
-    const { title, agentFirmware } = req.body;
+    const { title, agentFirmware } = req.body || {};
     
     // Fallback configurations if the directive omits details
     const threadId = crypto.randomUUID();
