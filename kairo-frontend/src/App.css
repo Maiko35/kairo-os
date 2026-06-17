@@ -313,3 +313,34 @@ code, pre {
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+.status-card-metric {
+  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  border: 1px solid var(--sys-border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.status-card-label {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--sys-text-muted);
+  opacity: 0.6;
+}
+.status-card-value {
+  font-family: var(--sys-font-mono);
+  font-size: 14px;
+  color: var(--sys-text-primary);
+  font-weight: 600;
+}
+.subsystem-row {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  padding: 10px 0;
+  color: var(--sys-text-muted);
+}
