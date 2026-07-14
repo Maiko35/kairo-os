@@ -12,18 +12,60 @@ export default function App() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamingTokenBuffer, setStreamingTokenBuffer] = useState('');
   const [activeTab, setActiveTab] = useState('console');
+
+  // PIOS System Identity State
+  const [systemConfig, setSystemConfig] = useState({
+    kernelVersion: '1.0.0-loading',
+    systemName: 'KAIRO OS',
+    activeAgentProfile: 'Core Assistant',
+    runtimeFlags: {}
+  });
   
   const logsEndRef = useRef(null);
+  const scrollContainerRef = useRef(null);
+  const isAutoScrollingRef = useRef(true);
 
+  // Unified PIOS Bootstrap Engine
   useEffect(() => {
-    loadThreadRegistry();
+    const initializeOS = async () => {
+      await loadSystemConfiguration();
+      await loadThreadRegistry();
+    };
+    initializeOS();
   }, []);
 
+  // Smooth User-Intent-Preserving Scroll Execution Loop
   useEffect(() => {
-    if (logsEndRef.current) {
+    if (isAutoScrollingRef.current && logsEndRef.current) {
       logsEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [logs, streamingTokenBuffer]);
+
+  const loadSystemConfiguration = async () => {
+    try {
+      const response = await fetch(`${apiService.BASE_URL}/system/config`);
+      const configData = await response.json();
+      if (configData) {
+        setSystemConfig({
+          kernelVersion: configData.systemMeta?.kernelVersion || '1.0.0-alpha',
+          systemName: configData.systemMeta?.systemName || 'KAIRO OS',
+          activeAgentProfile: configData.registry?.activeAgentProfile || 'Core Assistant',
+          runtimeFlags: configData.registry?.runtimeFlags || {}
+        });
+      }
+    } catch (err) {
+      console.error('System Identity Sync Failure:', err);
+    }
+  };
+
+  // Monitor user scrolling to detect if they want to break layout tracking lock
+  const handleContainerScroll = (e) => {
+    const target = e.currentTarget;
+    const threshold = 40; // Pixel boundary padding to calculate bottom affinity
+    const isAtBottom = target.scrollHeight - target.scrollTop <= target.clientHeight + threshold;
+    
+    isAutoScrollingRef.current = isAtBottom;
+  };
 
   const loadThreadRegistry = async () => {
     try {
@@ -192,7 +234,8 @@ export default function App() {
         <div className="sidebar-header">
           <div className="system-title-block">
             <span className="status-orb"></span>
-            <h1>KAIRO</h1>
+            {/* Dynamic system identity tracking single source of truth */}
+            <h1>{systemConfig.systemName}</h1>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px', background: 'rgba(0,0,0,0.2)', padding: '2px', borderRadius: '6px', marginTop: '8px' }}>
@@ -232,8 +275,8 @@ export default function App() {
             >
               <div className="thread-meta-group">
                 <span className="thread-title">{thread.title || 'Untitled Session'}</span>
-                {/* Dynamically reads direct column string mapped to SQLite schema */}
-                <span className="thread-firmware">{thread.agent_firmware || 'Core Assistant'}</span>
+                {/* Direct column mapping matching SQLite table schemas */}
+                <span className="thread-firmware">{thread.agent_firmware || systemConfig.activeAgentProfile}</span>
               </div>
               <button className="btn-purge" onClick={(e) => handlePurgeThread(e, thread.id)}>✕</button>
             </div>
@@ -258,7 +301,12 @@ export default function App() {
           </section>
         ) : (
           <>
-            <section className="stream-terminal-surface">
+            {/* Scroll-intent container hooked directly into our event tracking engine */}
+            <section 
+              ref={scrollContainerRef} 
+              onScroll={handleContainerScroll} 
+              className="stream-terminal-surface"
+            >
               {Array.isArray(logs) && logs.map((log, index) => (
                 <div key={index} className={`log-row-block role-${log.role}`}>
                   <div className="row-metadata">
