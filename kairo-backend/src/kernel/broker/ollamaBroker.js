@@ -3,7 +3,7 @@ import { kernelConfig } from '../registry/configRegistry.js'; // <-- Connects to
 
 class OllamaBroker {
   constructor() {
-    this.baseUrl = config.ollama.baseUrl;
+    this.baseUrl = kernelConfig.get('ollama.baseUrl') || 'http://localhost:11434';
   }
 
   async checkHealth() {
@@ -23,7 +23,24 @@ class OllamaBroker {
   async streamChatResponse(messages, onTokenCallback) {
     try {
       // DYNAMICALLY EXTRACT THE CHAT MODEL FROM OUR REGISTRY LAYER
-      const targetModel = kernelConfig.get('activeChatModel');
+      const targetModel = kernelConfig.get('activeChatModel') || 'qwen2.5:7b'; // <-- Fallback to default if not set
+
+      // 2. English-Only System Instruction Boundary
+      const strictEnglishDirective = {
+        role: 'system',
+        content: 'SYSTEM OPERATING DIRECTIVE: Process and execute all tokens strictly in the English language. Under no circumstances should you generate characters or responses in Chinese or any other dialect.'
+      };
+
+      // Defensively compile the message history payload
+      let processedMessages = Array.isArray(messages) ? [...messages] : [];
+
+      // Look for an existing system prompt to append our directive, or insert it first
+      const systemPromptIndex = processedMessages.findIndex(msg => msg.role === 'system');
+      if (systemPromptIndex !== -1) {
+        processedMessages[systemPromptIndex].content += `\n\n${strictEnglishDirective.content}`;
+      } else {
+        processedMessages.unshift(strictEnglishDirective);
+      }
 
       if (kernelConfig.get('runtimeFlags').performanceLogging) {
         console.log(`[Kernel Broker] Initializing core execution stream via model: ${targetModel}`);
@@ -34,8 +51,13 @@ class OllamaBroker {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: targetModel, // <-- No longer hardcoded!
-          messages: messages,
-          stream: true
+          messages: processedMessages,
+          stream: true,
+          options: {
+            temperature: 0.3,
+            top_k: 10,
+            top_p: 0.5
+          }
         })
       });
 
